@@ -2,7 +2,7 @@ name: "riverdist"
 navbar: 
   title: "My website"
   left:
-    - text: "ホーム"
+    - text: "home"
       href: index.html
     - text: "test"
       href: report.html
