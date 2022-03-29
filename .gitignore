@@ -1,0 +1,20 @@
+
+# shapefiles
+*shp
+*shx
+*dbf
+*xml
+*cpg
+*prj
+*qpj
+
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+_site/
+
+*misc
+.Rproj.user
+
+doc/

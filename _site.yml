@@ -1,0 +1,8 @@
+name: "riverdist"
+navbar: 
+  title: "My website"
+  left:
+    - text: "ホーム"
+      href: index.html
+
+output_dir: "docs"
