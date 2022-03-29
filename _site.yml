@@ -4,5 +4,7 @@ navbar:
   left:
     - text: "ホーム"
       href: index.html
+    - text: "test"
+      href: report.html
 
 output_dir: "docs"

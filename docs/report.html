@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>riverdistを用いたネットワーク中の距離の算出</title>
+
+<script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">My website</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">ホーム</a>
+</li>
+<li>
+  <a href="report.html">test</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">riverdistを用いたネットワーク中の距離の算出</h1>
+
+</div>
+
+
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
+## ✓ tibble  3.1.6     ✓ dplyr   1.0.8
+## ✓ tidyr   1.2.0     ✓ stringr 1.4.0
+## ✓ readr   2.1.2     ✓ forcats 0.5.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(sf)</code></pre>
+<pre><code>## Linking to GEOS 3.9.1, GDAL 3.4.0, PROJ 8.1.1; sf_use_s2() is TRUE</code></pre>
+<pre class="r"><code>library(riverdist)</code></pre>
+<pre class="r"><code>theme_set(theme_bw(base_size = 9))</code></pre>
+<div id="データの読み込み" class="section level2">
+<h2>データの読み込み</h2>
+<ul>
+<li>データは事前に国土数値情報から北海道の河川（ライン）ダウンロードしておく (<code>W05-09_01_GML</code>)</li>
+</ul>
+<pre class="r"><code># データの読み込み
+fname = &quot;W05-09_01_GML/W05-09_01-g_Stream.shp&quot;
+river_line &lt;- st_read(fname)</code></pre>
+<pre><code>## Reading layer `W05-09_01-g_Stream&#39; from data source 
+##   `/Users/abetk/Desktop/RiverdistPage/W05-09_01_GML/W05-09_01-g_Stream.shp&#39; 
+##   using driver `ESRI Shapefile&#39;
+## Simple feature collection with 49157 features and 10 fields
+## Geometry type: LINESTRING
+## Dimension:     XY
+## Bounding box:  xmin: 139.4108 ymin: 41.40087 xmax: 145.7973 ymax: 45.51731
+## CRS:           NA</code></pre>
+<pre class="r"><code># 日本語が列名だと不便なので、列名を変更する
+names(river_line) &lt;- c(
+  &quot;system_code&quot;, &quot;river_code&quot;, &quot;type&quot;, &quot;rivername&quot;,
+  &quot;startID&quot;, &quot;endID&quot;, &quot;ref&quot;, &quot;direction&quot;, &quot;riv_st_ID&quot;, &quot;riv_end_ID&quot;,
+  &quot;geometry&quot;
+  )</code></pre>
+</div>
+<div id="河川データのフィルタリング" class="section level2">
+<h2>河川データのフィルタリング</h2>
+<ul>
+<li>石狩川水系の水系コード(810103)でフィルタリングできる</li>
+<li>水系コードは国土数値情報の<a href="https://nlftp.mlit.go.jp/ksj/gml/codelist/WaterSystemCodeCd.html">水系域コード</a>を適宜参照する</li>
+</ul>
+<pre class="r"><code># 石狩川水系
+ishikari &lt;- river_line %&gt;% filter(system_code == &quot;810103&quot;)</code></pre>
+<pre class="r"><code>head(ishikari)</code></pre>
+<pre><code>## Simple feature collection with 6 features and 10 fields
+## Geometry type: LINESTRING
+## Dimension:     XY
+## Bounding box:  xmin: 141.611 ymin: 42.82573 xmax: 142.6365 ymax: 43.90956
+## CRS:           NA
+##   system_code river_code type        rivername startID   endID ref direction
+## 1      810103 8101030000    0         旧石狩川 0127245 0128686   3         1
+## 2      810103 8101030114    4           祝梅川 0128695 0130192   3         1
+## 3      810103 8101030202    2         須部都川 0127188 0127332   3         1
+## 4      810103 8101030223    2         晩生内川 0127163 0128358   3         1
+## 5      810103 8101030198    4           二号川 0125005 0127327   3         1
+## 6      810103 8101030468    2 パンケメムナイ川 0147206 0147204 3,4         1
+##   riv_st_ID riv_end_ID                       geometry
+## 1   0128520    0128685 LINESTRING (141.6402 43.153...
+## 2   0128695    0130296 LINESTRING (141.689 42.8257...
+## 3   0127170    0127391 LINESTRING (141.6131 43.358...
+## 4   0127148    0128358 LINESTRING (141.7576 43.410...
+## 5   0125005    0127329 LINESTRING (141.814 43.2956...
+## 6   0146229    0147204 LINESTRING (142.6365 43.903...</code></pre>
+<ul>
+<li>CRSが未設定になっているのがわかる</li>
+</ul>
+</div>
+<div id="crsの設定" class="section level2">
+<h2>CRSの設定</h2>
+<pre class="r"><code># crs未設定
+ggplot(ishikari) + geom_sf()</code></pre>
+<div class="figure">
+<img src="report_files/figure-html/unnamed-chunk-6-1.png" alt="crsが未設定だとx軸とy軸はただの値が表示される" width="672" />
+<p class="caption">
+crsが未設定だとx軸とy軸はただの値が表示される
+</p>
+</div>
+<pre class="r"><code>cap = &quot;crsが未設定だとx軸とy軸はただの値が表示される&quot;</code></pre>
+<pre class="r"><code># crsを追加する
+st_crs(ishikari) = &quot;+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs&quot;
+
+ggplot(ishikari) + geom_sf()</code></pre>
+<div class="figure">
+<img src="report_files/figure-html/unnamed-chunk-7-1.png" alt="crsを設定すると緯度軽度表示になっていることがわかる" width="672" />
+<p class="caption">
+crsを設定すると緯度軽度表示になっていることがわかる
+</p>
+</div>
+<pre class="r"><code>cap = &quot;crsを設定すると緯度軽度表示になっていることがわかる&quot;</code></pre>
+</div>
+<div id="ポイントデータの追加" class="section level2">
+<h2>ポイントデータの追加</h2>
+<pre class="r"><code>loc &lt;- st_read(&quot;pointdata.csv&quot;,
+  options = c(&quot;X_POSSIBLE_NAMES=lon&quot;,&quot;Y_POSSIBLE_NAMES=lat&quot;), quiet = TRUE)
+st_crs(loc) &lt;- &quot;+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs&quot;</code></pre>
+<pre class="r"><code>ggplot(ishikari) + geom_sf() +
+  geom_sf(data = loc, inherit.aes = FALSE, color = &quot;red&quot;, size = 5)</code></pre>
+<p><img src="report_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+<div id="ネットワークの作成" class="section level2">
+<h2>ネットワークの作成</h2>
+<p>riverdistではネットワークを作るところから始まる。 ラインが細かすぎると処理が遅いのでデータの区間を限定したほうがよい。 今回は区間種別でフィルターを作成するが、QGISなどですでに処理済みのデータを作成しておいてもよい</p>
+<pre class="r"><code>ishikari_filtered &lt;-  ishikari %&gt;% mutate(type = as.numeric(type)) %&gt;% 
+  filter(type == 1)
+
+ggplot(ishikari_filtered) + geom_sf() + 
+  geom_sf(data = loc, inherit.aes = FALSE, color = &quot;red&quot;, size = 5)</code></pre>
+<p><img src="report_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<div id="作業" class="section level3">
+<h3>作業</h3>
+<ol style="list-style-type: decimal">
+<li>UTM座標系に変換</li>
+<li><code>spatial dataframe</code>にデータ形式を変更する</li>
+<li><code>line2network()</code>でネットワークを作成する</li>
+</ol>
+<pre class="r"><code># UTM座標系に変換
+ishikari_utm &lt;- st_transform(ishikari_filtered, &quot;+init=epsg:32654&quot;)</code></pre>
+<pre><code>## Warning in CPL_crs_from_input(x): GDAL Message 1: +init=epsg:XXXX syntax is
+## deprecated. It might return a CRS with a non-EPSG compliant axis order.</code></pre>
+<pre class="r"><code>ishikari_river_network &lt;- line2network(as_Spatial(ishikari_utm))</code></pre>
+<pre><code>## 
+##  Units: m 
+## 
+##  Removed 16 segments with lengths shorter than the connectivity tolerance.</code></pre>
+<pre class="r"><code>plot(ishikari_river_network)</code></pre>
+<p><img src="report_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+</div>
+<div id="河川中でのポイントデータの位置を計算する" class="section level2">
+<h2>河川中でのポイントデータの位置を計算する</h2>
+<pre class="r"><code># ポイントデータをutm座標系に変換する
+points &lt;- st_transform(loc, &quot;+init=epsg:32654&quot;) %&gt;% 
+  mutate(
+    x = st_coordinates(geometry)[, 1],
+    y = st_coordinates(geometry)[, 2]
+  )
+
+# ポイントデータのriver networkの中での位置を算出する
+locs_in_river &lt;- xy2segvert(
+  x = points$x, y = points$y,
+  rivers = ishikari_river_network)</code></pre>
+</div>
+<div id="距離を算出する" class="section level2">
+<h2>距離を算出する</h2>
+<pre class="r"><code># 距離行列を算出する
+distmat &lt;- riverdistancemat(
+  locs_in_river$seg, locs_in_river$vert, ishikari_river_network
+)</code></pre>
+</div>
+<div id="参考url" class="section level2">
+<h2>参考URL</h2>
+<div id="shape-fileについて" class="section level3">
+<h3>shape fileについて</h3>
+<ul>
+<li><a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-W05.html">国土数値情報ダウンロードサービス:河川</a></li>
+</ul>
+</div>
+<div id="sf" class="section level3">
+<h3>sf</h3>
+<ul>
+<li><a href="https://notchained.hatenablog.com/entry/2017/01/06/213333">RでGISをやるときにはsfパッケージ、という世の中になるらしい。</a></li>
+<li><a href="https://tsukubar.github.io/r-spatial-guide/simple-feature-for-r.html">sfパッケージを用いてRでの空間データの取り扱いを学ぶ</a>:
+<ul>
+<li>sfからspへの変換</li>
+</ul></li>
+<li><a href="https://gis.stackexchange.com/questions/305403/load-a-csv-as-simple-features-r">Load a CSV as Simple Features R</a>: csvファイルをsfで読み込む</li>
+<li><a href="https://qiita.com/iwasaki_kenichi/items/e2f0c6777263a93c7230">Rを使った地理空間情報データの処理～その2～</a>: 座標系の設定と変換について</li>
+<li><a href="https://keita43a.hatenablog.com/entry/2018/10/24/004341">CRSの追加</a></li>
+</ul>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
