@@ -1,5 +1,9 @@
 ---
 title: riverdistを用いたネットワーク中の距離の算出
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
 ---
 
 ```{r}

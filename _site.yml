@@ -1,10 +1,10 @@
 name: "riverdist"
 navbar: 
-  title: "My website"
+  title: "R spatial analysis"
   left:
     - text: "home"
       href: index.html
-    - text: "test"
+    - text: "RiverDist"
       href: report.html
 
 output_dir: "docs"
