@@ -7,10 +7,20 @@ output:
     css: css/serifStyle.css
 ---
 
+# このページを読むとできるようになること
+
+- 河川のシェープファイル（ラインデータ）を使って、河川の2地点間以上の距離を計算することができるようになります。
+
+## 目的とやること
+
+`riverdist`パッケージを使うと、河川のラインデータをネットワークに変換し、ネットワーク上の点の間の距離を求めることができます。
+このページでは`riverdist`パッケージを使った複数の点の間の距離を算出します。
+
 ```{r, message=0, warning=0}
 library(tidyverse)
 library(sf)
 library(riverdist)
+library(rnaturalearth)
 ```
 
 ```{r}
@@ -19,58 +29,113 @@ theme_set(theme_bw(base_size = 9))
 
 ## データの読み込み
 
-- データは事前に国土数値情報から北海道の河川（ライン）ダウンロードしておく (`W05-09_01_GML`)
+データは事前に国土数値情報から北海道の河川（ライン）ダウンロードし、解凍した状態で同じディレクトリに置いておいてください (`W05-09_01_GML`)。
+主に使うデータはラインデータ (`W05-09_01-g_Stream.shp`) となります。
 
 ```{r}
 # データの読み込み
 fname = "W05-09_01_GML/W05-09_01-g_Stream.shp"
 river_line <- st_read(fname)
+```
+
+`sf`パッケージでは、shapefileの属性値が`data.frame`として認識されます。
+なので、`tidyverse`との相性がよく、データの取扱いが比較的簡単です。
+また、データも`ggplot(data) + geom_sf()`だけで描写できるのでコード量も短くて済みます。
+データの中身を確認してみましょう。
+
+```{r}
+# データの確認
+head(river_line)
+```
 
 
+属性値が日本語だと解析がやりにくいので、属性の名前を変更しましょう。
 
+
+```{r}
 # 日本語が列名だと不便なので、列名を変更する
 names(river_line) <- c(
   "system_code", "river_code", "type", "rivername",
   "startID", "endID", "ref", "direction", "riv_st_ID", "riv_end_ID",
   "geometry"
   )
+
+head(river_line)
 ```
 
-## 河川データのフィルタリング
+## 使用する河川データの選択
 
-- 石狩川水系の水系コード(810103)でフィルタリングできる
-- 水系コードは国土数値情報の[水系域コード](https://nlftp.mlit.go.jp/ksj/gml/codelist/WaterSystemCodeCd.html)を適宜参照する
+今回は石狩川水系を対象として解析を進めます。
+生データのままだと、解析や描写に時間がかかるので、使用する河川区間にデータを限定していきます。
+特に`riverdist`では一つ一つのライン情報からネットワークを作成するので、できる限り無駄なラインは削除することをお勧めします。
 
 ```{r}
-# 石狩川水系
+# 試しに全部のデータを描写してみる
+ggplot(data = river_line) + geom_sf()
+```
+
+### 水系の選択
+
+- 水系は水系コード`system_code`でフィルタリングできます
+- 石狩川の水系コードは810103です
+- 水系コードは国土数値情報の[水系域コード](https://nlftp.mlit.go.jp/ksj/gml/codelist/WaterSystemCodeCd.html)を適宜参照してください
+
+```{r}
+# 石狩川水系へのデータの抽出
 ishikari <- river_line %>% filter(system_code == "810103")
+
+# 描写
+ggplot(data = ishikari) + geom_sf()
+```
+
+### 区間の選択
+
+- 区間種別`type`を選択することで、さらにフィルタリングできます
+- 今回は1級直轄区間("1")でフィルタリングします
+- 区間種別についてはダウンロードページの区間種別 (W05_003) を参照してください
+
+```{r}
+# 区間種別でデータを抽出
+ishikari_filtered <-  ishikari %>% mutate(type = as.numeric(type)) %>% 
+  filter(type == 1)
+
+# 描写
+ggplot(ishikari_filtered) + geom_sf()
 ```
 
 ```{r}
 head(ishikari)
 ```
 
-- CRSが未設定になっているのがわかる
-
 ## CRSの設定
+
+読み込んだデータはそのままだとCRSが未設定になっています。
+ここではCRSを追加します。
 
 ```{r, fig.cap = cap}
 # crs未設定
-ggplot(ishikari) + geom_sf()
+ggplot(ishikari_filtered) + geom_sf()
 cap = "crsが未設定だとx軸とy軸はただの値が表示される"
 ```
 
 ```{r, fig.cap = cap}
 # crsを追加する
-st_crs(ishikari) = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+st_crs(ishikari_filtered) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
-ggplot(ishikari) + geom_sf()
+ggplot(ishikari_filtered) + geom_sf()
 
 cap = "crsを設定すると緯度軽度表示になっていることがわかる"
 ```
 
 
 ## ポイントデータの追加
+
+河川ネットワーク上で距離を算出したい点のデータをcsvファイルにまとめています。
+
+```{r}
+locationtable <- read_csv("pointdata.csv")
+knitr::kable(locationtable)
+```
 
 ```{r}
 loc <- st_read("pointdata.csv",
@@ -79,8 +144,8 @@ st_crs(loc) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 ```
 
 ```{r}
-ggplot(ishikari) + geom_sf() +
-  geom_sf(data = loc, inherit.aes = FALSE, color = "red", size = 5)
+ggplot(ishikari_filtered) + geom_sf() +
+  geom_sf(data = loc, inherit.aes = FALSE, shape = 24, fill = "yellow", size = 4)
 ```
 
 
@@ -89,14 +154,6 @@ ggplot(ishikari) + geom_sf() +
 riverdistではネットワークを作るところから始まる。
 ラインが細かすぎると処理が遅いのでデータの区間を限定したほうがよい。
 今回は区間種別でフィルターを作成するが、QGISなどですでに処理済みのデータを作成しておいてもよい
-
-```{r}
-ishikari_filtered <-  ishikari %>% mutate(type = as.numeric(type)) %>% 
-  filter(type == 1)
-
-ggplot(ishikari_filtered) + geom_sf() + 
-  geom_sf(data = loc, inherit.aes = FALSE, color = "red", size = 5)
-```
 
 ### 作業
 
@@ -134,6 +191,10 @@ locs_in_river <- xy2segvert(
 distmat <- riverdistancemat(
   locs_in_river$seg, locs_in_river$vert, ishikari_river_network
 )
+```
+
+```{r}
+
 ```
 
 

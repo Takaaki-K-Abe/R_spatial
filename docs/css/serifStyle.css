@@ -1,13 +1,13 @@
 @charset "UTF-8";
 
 body{ /* Normal  */
-      font-size: 14px;
+      font-size: 16px;
       background: white;
       color: #000000;
       font-weight: 500;
-      line-height: 1.3em;
+      line-height: 1.5em;
       letter-spacing: 0.75px;
-      font-family: 'Times New Roman', "MS PMincho",　Times, serif;
+      font-family: 'Times New Roman', "MS PMincho", Times, serif;
   }
 
 td {  /* Table  */

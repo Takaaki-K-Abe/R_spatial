@@ -2,7 +2,7 @@ name: "riverdist"
 navbar: 
   title: "R spatial analysis"
   left:
-    - text: "home"
+    - text: "Home"
       href: index.html
     - text: "RiverDist"
       href: riverdist.html
