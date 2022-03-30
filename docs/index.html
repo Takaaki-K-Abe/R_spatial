@@ -60,6 +60,7 @@ if (window.hljs) {
 
 
 
+<link rel="stylesheet" href="css/serifStyle.css" type="text/css" />
 
 
 
@@ -340,12 +341,12 @@ div.tocify {
 </div>
 
 
-<div id="はじめに" class="section level1">
-<h1>はじめに</h1>
+<div id="はじめに" class="section level2">
+<h2>はじめに</h2>
 <p>フィールドワークで得られたデータをまとめていると、動物がいた位置を地図上にプロットし、図として保存したくなることが多いのではないでしょうか。 また、地図上の2点間 (あるいは複数の点の間の距離) や、河川に沿って移動する魚などの移動距離を算出したいということも多いかと思います（少なくとも私はそうでした）。</p>
-<p>最近はRで地理情報を扱うことができるパッケージの開発が進み、比較的簡単に地形データを地図でプロットしたり、距離を計算することができるようになりました。 このページでは、最近私が覚えたRによる地形・位置情報の使い方を、忘備録として残すと共に、紹介していきたいと思います。</p>
-<div id="このページの主な対象者" class="section level2">
-<h2>このページの主な対象者</h2>
+<p>最近はRで地理情報を扱うことができるパッケージの開発が進み、地形データを地図でプロットしたり、距離を計算することが比較的簡単にできるようになりました。 このページでは、Rによる地形・位置情報の使い方を、私自身の忘備録として残すと共に、紹介していきたいと思います。</p>
+<div id="このページの主な対象者" class="section level3">
+<h3>このページの主な対象者</h3>
 <p>このページは以下の人たちを対象として書いています。</p>
 <ul>
 <li>野生生物を対象としたフィールドワーカー</li>
@@ -353,8 +354,8 @@ div.tocify {
 <li>GISで手動で地図を何度も作るのが嫌な人</li>
 </ul>
 </div>
-<div id="このページで紹介する将来的に追記していこうと思っていること" class="section level2">
-<h2>このページで紹介する（将来的に追記していこうと思っている）こと</h2>
+<div id="このページで紹介する追記予定含むこと" class="section level3">
+<h3>このページで紹介する（追記予定含む）こと</h3>
 <ul>
 <li>論文や報告書っぽいの地図の描き方</li>
 <li><code>ggplot</code>での地図の作成</li>
@@ -362,22 +363,21 @@ div.tocify {
 </ul>
 </div>
 </div>
-<div id="環境について" class="section level1">
-<h1>環境について</h1>
-<p>解析は基本的にRを用いますが、シェープファイルはそのままだとどうしても重いこと、地図を作成するということに限って言えば、手動でデータを編集した方が速いことが多いです。 そのため、QGISでのシェープファイルの加工についても少し触れていく予定です。</p>
-</div>
-<div id="パッケージ" class="section level1">
-<h1>パッケージ</h1>
+<div id="環境について" class="section level2">
+<h2>環境について</h2>
+<p>解析は基本的にRを用いますが、シェープファイルはそのままだとどうしても重いこと、地図を作成するということに限って言えば、手動でデータを編集した方が速いことが多いです。 そのため、QGISでのシェープファイルの加工についても触れていく予定です。</p>
+<div id="パッケージ" class="section level3">
+<h3>パッケージ</h3>
 <p>主な使用パッケージを以下にまとめました。</p>
-<div id="汎用パッケージ" class="section level3">
-<h3>汎用パッケージ</h3>
+<div id="汎用" class="section level4">
+<h4>汎用</h4>
 <ul>
 <li><code>tidyverse</code></li>
 <li><code>lubridate</code></li>
 </ul>
 </div>
-<div id="gisパッケージ" class="section level3">
-<h3>GISパッケージ</h3>
+<div id="gis" class="section level4">
+<h4>GIS</h4>
 <ul>
 <li><code>sf</code></li>
 <li><code>raster</code></li>
@@ -386,12 +386,14 @@ div.tocify {
 <li><code>marmap</code></li>
 </ul>
 </div>
-<div id="データのダウンロード" class="section level2">
-<h2>データのダウンロード</h2>
+<div id="地形データ" class="section level4">
+<h4>地形データ</h4>
+<p>地形データ (シェープファイル) は主に以下のサイトからダウンロードします。</p>
 <ul>
 <li><a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-W05.html">国土数値情報ダウンロードサービス</a></li>
 <li><a href="https://www.naturalearthdata.com/">Natural Earth</a></li>
 </ul>
+</div>
 </div>
 </div>
 
