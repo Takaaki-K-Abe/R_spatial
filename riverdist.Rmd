@@ -4,7 +4,7 @@ output:
   html_document:
     toc: TRUE
     toc_float: TRUE
-    css: css/style.css
+    css: css/serifStyle.css
 ---
 
 ```{r, message=0, warning=0}

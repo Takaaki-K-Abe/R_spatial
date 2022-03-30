@@ -6,9 +6,5 @@ navbar:
       href: index.html
     - text: "RiverDist"
       href: riverdist.html
-      
-output:
-  html_document:
-    css: css/serifStyle.css
 
 output_dir: "docs"
