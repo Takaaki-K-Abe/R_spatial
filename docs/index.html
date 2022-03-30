@@ -11,7 +11,7 @@
 
 
 
-<title>Rによる河川ネットワークの解析</title>
+<title>フィールドワーカーのためのRによる地形・位置情報の使い方</title>
 
 <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -29,6 +29,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -218,6 +221,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -225,6 +291,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -245,7 +321,7 @@ $(document).ready(function () {
   <a href="index.html">home</a>
 </li>
 <li>
-  <a href="report.html">RiverDist</a>
+  <a href="riverdist.html">RiverDist</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -259,18 +335,70 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Rによる河川ネットワークの解析</h1>
+<h1 class="title toc-ignore">フィールドワーカーのためのRによる地形・位置情報の使い方</h1>
 
 </div>
 
 
-<div id="kore" class="section level1">
-<h1>kore</h1>
-<p>koreha test file</p>
+<div id="はじめに" class="section level1">
+<h1>はじめに</h1>
+<p>フィールドワークで得られたデータをまとめていると、動物がいた位置を地図上にプロットし、図として保存したくなることが多いのではないでしょうか。 また、地図上の2点間 (あるいは複数の点の間の距離) や、河川に沿って移動する魚などの移動距離を算出したいということも多いかと思います（少なくとも私はそうでした）。</p>
+<p>最近はRで地理情報を扱うことができるパッケージの開発が進み、比較的簡単に地形データを地図でプロットしたり、距離を計算することができるようになりました。 このページでは、最近私が覚えたRによる地形・位置情報の使い方を、忘備録として残すと共に、紹介していきたいと思います。</p>
+<div id="このページの主な対象者" class="section level2">
+<h2>このページの主な対象者</h2>
+<p>このページは以下の人たちを対象として書いています。</p>
+<ul>
+<li>野生生物を対象としたフィールドワーカー</li>
+<li>論文中で地図を描きたい人</li>
+<li>GISで手動で地図を何度も作るのが嫌な人</li>
+</ul>
+</div>
+<div id="このページで紹介する将来的に追記していこうと思っていること" class="section level2">
+<h2>このページで紹介する（将来的に追記していこうと思っている）こと</h2>
+<ul>
+<li>論文や報告書っぽいの地図の描き方</li>
+<li><code>ggplot</code>での地図の作成</li>
+<li><code>riverdist</code>による河川ネットワーク上の複数の点の間の距離の算出の仕方</li>
+</ul>
+</div>
+</div>
+<div id="環境について" class="section level1">
+<h1>環境について</h1>
+<p>解析は基本的にRを用いますが、シェープファイルはそのままだとどうしても重いこと、地図を作成するということに限って言えば、手動でデータを編集した方が速いことが多いです。 そのため、QGISでのシェープファイルの加工についても少し触れていく予定です。</p>
+</div>
+<div id="パッケージ" class="section level1">
+<h1>パッケージ</h1>
+<p>主な使用パッケージを以下にまとめました。</p>
+<div id="汎用パッケージ" class="section level3">
+<h3>汎用パッケージ</h3>
+<ul>
+<li><code>tidyverse</code></li>
+<li><code>lubridate</code></li>
+</ul>
+</div>
+<div id="gisパッケージ" class="section level3">
+<h3>GISパッケージ</h3>
+<ul>
+<li><code>sf</code></li>
+<li><code>raster</code></li>
+<li><code>riverdist</code></li>
+<li><code>rnaturalearth</code></li>
+<li><code>marmap</code></li>
+</ul>
+</div>
+<div id="データのダウンロード" class="section level2">
+<h2>データのダウンロード</h2>
+<ul>
+<li><a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-W05.html">国土数値情報ダウンロードサービス</a></li>
+<li><a href="https://www.naturalearthdata.com/">Natural Earth</a></li>
+</ul>
+</div>
 </div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -303,6 +431,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

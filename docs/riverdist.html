@@ -321,7 +321,7 @@ div.tocify {
   <a href="index.html">home</a>
 </li>
 <li>
-  <a href="report.html">RiverDist</a>
+  <a href="riverdist.html">RiverDist</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -413,7 +413,7 @@ ishikari &lt;- river_line %&gt;% filter(system_code == &quot;810103&quot;)</code
 <pre class="r"><code># crs未設定
 ggplot(ishikari) + geom_sf()</code></pre>
 <div class="figure">
-<img src="report_files/figure-html/unnamed-chunk-6-1.png" alt="crsが未設定だとx軸とy軸はただの値が表示される" width="672" />
+<img src="riverdist_files/figure-html/unnamed-chunk-6-1.png" alt="crsが未設定だとx軸とy軸はただの値が表示される" width="672" />
 <p class="caption">
 crsが未設定だとx軸とy軸はただの値が表示される
 </p>
@@ -424,7 +424,7 @@ st_crs(ishikari) = &quot;+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs&quot;
 
 ggplot(ishikari) + geom_sf()</code></pre>
 <div class="figure">
-<img src="report_files/figure-html/unnamed-chunk-7-1.png" alt="crsを設定すると緯度軽度表示になっていることがわかる" width="672" />
+<img src="riverdist_files/figure-html/unnamed-chunk-7-1.png" alt="crsを設定すると緯度軽度表示になっていることがわかる" width="672" />
 <p class="caption">
 crsを設定すると緯度軽度表示になっていることがわかる
 </p>
@@ -438,7 +438,7 @@ crsを設定すると緯度軽度表示になっていることがわかる
 st_crs(loc) &lt;- &quot;+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs&quot;</code></pre>
 <pre class="r"><code>ggplot(ishikari) + geom_sf() +
   geom_sf(data = loc, inherit.aes = FALSE, color = &quot;red&quot;, size = 5)</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="riverdist_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
 </div>
 <div id="ネットワークの作成" class="section level2">
 <h2>ネットワークの作成</h2>
@@ -448,7 +448,7 @@ st_crs(loc) &lt;- &quot;+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs&quot;</
 
 ggplot(ishikari_filtered) + geom_sf() + 
   geom_sf(data = loc, inherit.aes = FALSE, color = &quot;red&quot;, size = 5)</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="riverdist_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <div id="作業" class="section level3">
 <h3>作業</h3>
 <ol style="list-style-type: decimal">
@@ -466,7 +466,7 @@ ishikari_utm &lt;- st_transform(ishikari_filtered, &quot;+init=epsg:32654&quot;)
 ## 
 ##  Removed 16 segments with lengths shorter than the connectivity tolerance.</code></pre>
 <pre class="r"><code>plot(ishikari_river_network)</code></pre>
-<p><img src="report_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="riverdist_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 </div>
 </div>
 <div id="河川中でのポイントデータの位置を計算する" class="section level2">

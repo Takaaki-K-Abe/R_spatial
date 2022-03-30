@@ -5,6 +5,6 @@ navbar:
     - text: "home"
       href: index.html
     - text: "RiverDist"
-      href: report.html
+      href: riverdist.html
 
 output_dir: "docs"
