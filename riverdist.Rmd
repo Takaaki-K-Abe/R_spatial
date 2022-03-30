@@ -4,9 +4,10 @@ output:
   html_document:
     toc: TRUE
     toc_float: TRUE
+    css: css/serifStyle.css
 ---
 
-```{r}
+```{r, message=0, warning=0}
 library(tidyverse)
 library(sf)
 library(riverdist)

@@ -7,4 +7,8 @@ navbar:
     - text: "RiverDist"
       href: riverdist.html
 
+output:
+  html_document:
+    css: css/site_style.css
+
 output_dir: "docs"
